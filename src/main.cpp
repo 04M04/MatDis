@@ -86,7 +86,7 @@
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 #ifndef PSTR
- #define PSTR // Make Arduino Due happy
+#define PSTR // Make Arduino Due happy
 #endif
 
 #define PIN 13
@@ -118,7 +118,7 @@
 // lines are arranged in columns, progressive order.  The shield uses
 // 800 KHz (v2) pixels that expect GRB color data.
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(16, 16, PIN,
-  NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + 
+  NEO_MATRIX_TOP + NEO_MATRIX_LEFT + 
   NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG + 
   NEO_GRB + NEO_KHZ800);
 
@@ -126,9 +126,12 @@ const uint16_t colors[] = {
   matrix.Color(255, 0, 0), matrix.Color(0, 255, 0), matrix.Color(0, 0, 255) };
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("The device started!"); 
+
   matrix.begin();
   matrix.setTextWrap(false);
-  matrix.setBrightness(10);
+  matrix.setBrightness(100);
   matrix.setTextColor(colors[0]);
 }
 
@@ -136,12 +139,16 @@ int x    = matrix.width();
 int pass = 0;
 
 void loop() {
+  if (Serial.available()) {
+    Serial.write(Serial.read());
+  }
   matrix.fillScreen(0);
   matrix.setCursor(x, 4);
-  matrix.print(F("Howdy"));
-  if(++x > +36) {
+  matrix.print(F("Nina, ich liebe dich über alles. <3"));
+  
+  if(--x < -200) {
     x = matrix.width();
-    if(--pass <= 3) pass = 0;
+    if(++pass >= 3) pass = 0;
     matrix.setTextColor(colors[pass]);
   }
   matrix.show();
