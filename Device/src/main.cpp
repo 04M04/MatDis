@@ -1,156 +1,174 @@
 #include <Arduino.h>
 
-// //BLE------------------------------------------------------------------------------------------------
+/*
+    Video: https://www.youtube.com/watch?v=oCMOYS71NIU
+    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
+    Ported to Arduino ESP32 by Evandro Copercini
+    updated by chegewara
 
-// //This example code is in the Public Domain (or CC0 licensed, at your option.)
-// //By Evandro Copercini - 2018
-// //
-// //This example creates a bridge between Serial and Classical Bluetooth (SPP)
-// //and also demonstrate that SerialBT have the same functionalities of a normal Serial
+   Create a BLE server that, once we receive a connection, will send periodic notifications.
+   The service advertises itself as: 4fafc201-1fb5-459e-8fcc-c5c9c331914b
+   And has a characteristic of: beb5483e-36e1-4688-b7f5-ea07361b26a8
 
-// #include "BluetoothSerial.h"
+   The design of creating the BLE server is:
+   1. Create a BLE Server
+   2. Create a BLE Service
+   3. Create a BLE Characteristic on the Service
+   4. Create a BLE Descriptor on the characteristic
+   5. Start the service.
+   6. Start advertising.
 
-// #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-// #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-// #endif
+   A connect hander associated with the server starts a background task that performs notification
+   every couple of seconds.
+*/
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 
-// #if !defined(CONFIG_BT_SPP_ENABLED)
-// #error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip.
-// #endif
+BLEServer *pServer = NULL;
+BLECharacteristic *pCharacteristic = NULL;
 
-// BluetoothSerial SerialBT;
+BLECharacteristic *pCharacteristic_Points_Team1 = NULL;
+BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
+BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
+BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
 
-// //NEOPIXEL------------------------------------------------------------------------------------------------
-// #include <Adafruit_NeoPixel.h>
-// #ifdef __AVR__
-//   #include <avr/power.h>
-// #endif
+int value_Points_Team1 = 0;
+int value_Points_Team2 = 0;
+int value_SummedPoints_Team1 = 0;
+int value_SummedPoints_Team2 = 0;
 
-// #define PIN 13
+bool deviceConnected = false;
+bool oldDeviceConnected = false;
+uint32_t value = 0;
 
-// // Parameter 1 = number of pixels in strip
-// // Parameter 2 = Arduino pin number (most are valid)
-// // Parameter 3 = pixel type flags, add together as needed:
-// //   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-// //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-// //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-// //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-// //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-// Adafruit_NeoPixel strip = Adafruit_NeoPixel(256, PIN, NEO_GRB + NEO_KHZ800);
+// See the following for generating UUIDs:
+// https://www.uuidgenerator.net/
 
-// // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
-// // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
-// // and minimize distance between Arduino and first pixel.  Avoid connecting
-// // on a live circuit...if you must, connect GND first.
+#define SERVICE_UUID "acf4e731-64f4-4c13-b83d-9ea85d92a139"
+#define CHARACTERISTIC_UUID "86a6d5ae-048b-41cf-929f-a54a0d900a02"
 
+#define SERVICE_UUID_Game "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+#define CHARACTERISTIC_UUID_Points_Team1 "9b5a6f18-6c76-4f5e-aa5e-c5a5e6d1a42e"
+#define CHARACTERISTIC_UUID_Points_Team2 "3f2370b7-6e79-4b16-b9e9-0fcd4b4c6b59"
+#define CHARACTERISTIC_UUID_SummedPoints_Team1 "65a6c077-e5f2-4975-9c17-e5f442227c2a"
+#define CHARACTERISTIC_UUID_SummedPoints_Team2 "1f30b69a-b3f8-4be3-9cfe-9f9b55d33b19"
 
-// void setup() {
-//   //BLE------------------------------------------------------------------------------------------------
+class MyServerCallbacks : public BLEServerCallbacks
+{
+  void onConnect(BLEServer *pServer)
+  {
+    deviceConnected = true;
+    BLEDevice::startAdvertising();
+  };
 
-//   Serial.begin(115200);
-//   SerialBT.begin("MatDis"); //Bluetooth device name
-//   Serial.println("The device started, now you can pair it with bluetooth!");
+  void onDisconnect(BLEServer *pServer)
+  {
+    deviceConnected = false;
+  }
+};
 
-//   //NEOPIXEL------------------------------------------------------------------------------------------------
-
-//   // This is for Trinket 5V 16MHz, you can remove these three lines if you are not using a Trinket
-//   #if defined (__AVR_ATtiny85__)
-//     if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
-//   #endif
-//   // End of trinket special code
-
-//   strip.begin();
-//   strip.setBrightness(50);
-//   strip.show(); // Initialize all pixels to 'off'
-// }
-
-// void loop() {
-//   if (Serial.available()) {
-//     SerialBT.write(Serial.read());
-//   }
-//   if (SerialBT.available()) {
-//     Serial.write(SerialBT.read());
-//   }
-//   delay(20);
-//   int r = 0;
-//   for(int i = 0; i < 256; i++){
-//     strip.setPixelColor(i, strip.Color(10,10,10));
-//   }
-//   strip.show();
-//   delay(200);
-// }
-
-// []
-
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoMatrix.h>
-#include <Adafruit_NeoPixel.h>
-#ifndef PSTR
-#define PSTR // Make Arduino Due happy
-#endif
-
-#define PIN 13
-
-// MATRIX DECLARATION:
-// Parameter 1 = width of NeoPixel matrix
-// Parameter 2 = height of matrix
-// Parameter 3 = pin number (most are valid)
-// Parameter 4 = matrix layout flags, add together as needed:
-//   NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
-//     Position of the FIRST LED in the matrix; pick two, e.g.
-//     NEO_MATRIX_TOP + NEO_MATRIX_LEFT for the top-left corner.
-//   NEO_MATRIX_ROWS, NEO_MATRIX_COLUMNS: LEDs are arranged in horizontal
-//     rows or in vertical columns, respectively; pick one or the other.
-//   NEO_MATRIX_PROGRESSIVE, NEO_MATRIX_ZIGZAG: all rows/columns proceed
-//     in the same order, or alternate lines reverse direction; pick one.
-//   See example below for these values in action.
-// Parameter 5 = pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_GRBW    Pixels are wired for GRBW bitstream (RGB+W NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-
-
-// Example for NeoPixel Shield.  In this application we'd like to use it
-// as a 5x8 tall matrix, with the USB port positioned at the top of the
-// Arduino.  When held that way, the first pixel is at the top right, and
-// lines are arranged in columns, progressive order.  The shield uses
-// 800 KHz (v2) pixels that expect GRB color data.
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(16, 16, PIN,
-  NEO_MATRIX_TOP + NEO_MATRIX_LEFT + 
-  NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG + 
-  NEO_GRB + NEO_KHZ800);
-
-const uint16_t colors[] = {
-  matrix.Color(255, 0, 0), matrix.Color(0, 255, 0), matrix.Color(0, 0, 255) };
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-  Serial.println("The device started!"); 
 
-  matrix.begin();
-  matrix.setTextWrap(false);
-  matrix.setBrightness(100);
-  matrix.setTextColor(colors[0]);
+  // Create the BLE Device
+  BLEDevice::init("NinWing BLE");
+
+  // Create the BLE Server
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());
+
+  // Create the BLE Service
+  BLEService *pService = pServer->createService(SERVICE_UUID);
+  BLEService *pServiceGame = pServer->createService(SERVICE_UUID_Game);
+  
+  // Create a BLE Characteristic
+  pCharacteristic = pService->createCharacteristic(
+      CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_WRITE |
+          BLECharacteristic::PROPERTY_NOTIFY |
+          BLECharacteristic::PROPERTY_INDICATE);
+  pCharacteristic_Points_Team1 = pServiceGame->createCharacteristic(
+      CHARACTERISTIC_UUID_Points_Team1,
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_WRITE |
+          BLECharacteristic::PROPERTY_NOTIFY |
+          BLECharacteristic::PROPERTY_INDICATE);
+  pCharacteristic_Points_Team2 = pServiceGame->createCharacteristic(
+      CHARACTERISTIC_UUID_Points_Team2,
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_WRITE |
+          BLECharacteristic::PROPERTY_NOTIFY |
+          BLECharacteristic::PROPERTY_INDICATE);
+  pCharacteristic_SummedPoints_Team1 = pServiceGame->createCharacteristic(
+      CHARACTERISTIC_UUID_SummedPoints_Team1,
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_WRITE |
+          BLECharacteristic::PROPERTY_NOTIFY |
+          BLECharacteristic::PROPERTY_INDICATE);
+  pCharacteristic_SummedPoints_Team2 = pServiceGame->createCharacteristic(
+      CHARACTERISTIC_UUID_SummedPoints_Team2,
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_WRITE |
+          BLECharacteristic::PROPERTY_NOTIFY |
+          BLECharacteristic::PROPERTY_INDICATE);
+
+  pCharacteristic_Points_Team1->setValue("0");
+  pCharacteristic_Points_Team2->setValue("0");
+  pCharacteristic_SummedPoints_Team1->setValue("0");
+  pCharacteristic_SummedPoints_Team2->setValue("0");
+
+  // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml
+  // Create a BLE Descriptor
+  pCharacteristic->addDescriptor(new BLE2902());
+  pCharacteristic_Points_Team1->addDescriptor(new BLE2902());
+  pCharacteristic_Points_Team2->addDescriptor(new BLE2902());
+  pCharacteristic_SummedPoints_Team1->addDescriptor(new BLE2902());
+  pCharacteristic_SummedPoints_Team2->addDescriptor(new BLE2902());
+
+  // Start the service
+  pService->start();
+  pServiceGame->start();
+
+  // Start advertising
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->addServiceUUID(SERVICE_UUID_Game);
+  pAdvertising->setScanResponse(false);
+  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+  BLEDevice::startAdvertising();
+  Serial.println("Waiting a client connection to notify...");
 }
 
-int x    = matrix.width();
-int pass = 0;
-
-void loop() {
-  if (Serial.available()) {
-    Serial.write(Serial.read());
+void loop()
+{
+  // notify changed value
+  if (deviceConnected)
+  {
+    pCharacteristic->setValue((uint8_t *)&value, 4);
+    pCharacteristic->notify();
+    value++;
+    pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 4);
+    pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 4);
+    pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 4);
+    pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, 4);
+    delay(10); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
   }
-  matrix.fillScreen(0);
-  matrix.setCursor(x, 4);
-  matrix.print(F("Nina, ich liebe dich über alles. <3"));
-  
-  if(--x < -200) {
-    x = matrix.width();
-    if(++pass >= 3) pass = 0;
-    matrix.setTextColor(colors[pass]);
+  // disconnecting
+  if (!deviceConnected && oldDeviceConnected)
+  {
+    delay(500);                  // give the bluetooth stack the chance to get things ready
+    pServer->startAdvertising(); // restart advertising
+    Serial.println("start advertising");
+    oldDeviceConnected = deviceConnected;
   }
-  matrix.show();
-  delay(100);
+  // connecting
+  if (deviceConnected && !oldDeviceConnected)
+  {
+    // do stuff here on connecting
+    oldDeviceConnected = deviceConnected;
+  }
 }
