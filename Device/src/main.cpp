@@ -34,10 +34,10 @@ BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
 
-uint8_t value_Points_Team1 = 0;
-uint8_t value_Points_Team2 = 0;
-uint8_t value_SummedPoints_Team1 = 0;
-uint8_t value_SummedPoints_Team2 = 0;
+int value_Points_Team1 = 0;
+int value_Points_Team2 = 0;
+int value_SummedPoints_Team1 = 0;
+int value_SummedPoints_Team2 = 0;
 
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
@@ -148,18 +148,18 @@ void loop()
   // notify changed value
   if (deviceConnected)
   {
-    uint8_t *value_Points_Team1 = pCharacteristic_Points_Team1->getData();
-    uint8_t *value_Points_Team2 = pCharacteristic_Points_Team2->getData();
-    uint8_t *value_SummedPoints_Team1 = pCharacteristic_SummedPoints_Team1->getData();
-    uint8_t *value_SummedPoints_Team2 = pCharacteristic_SummedPoints_Team2->getData();
+    std::string value_Points_Team1 = pCharacteristic_Points_Team1->getValue();
+    std::string value_Points_Team2 = pCharacteristic_Points_Team2->getValue();
+    std::string value_SummedPoints_Team1 = pCharacteristic_SummedPoints_Team1->getValue();
+    std::string value_SummedPoints_Team2 = pCharacteristic_SummedPoints_Team2->getValue();
 
     pCharacteristic->setValue((uint8_t *)&value, 4);
     pCharacteristic->notify();
     value++;
-    pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, sizeof(value_Points_Team1));
-    pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, sizeof(value_Points_Team2));
-    pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, sizeof(value_SummedPoints_Team1));
-    pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, sizeof(value_SummedPoints_Team2));
+    pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 4);
+    pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 4);
+    pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 4);
+    pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, 4);
     delay(10); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
   }
   // disconnecting
