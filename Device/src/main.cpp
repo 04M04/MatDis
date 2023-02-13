@@ -34,10 +34,10 @@ BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
 
-int value_Points_Team1 = 0;
-int value_Points_Team2 = 0;
-int value_SummedPoints_Team1 = 0;
-int value_SummedPoints_Team2 = 0;
+uint8_t value_Points_Team1 = 0;
+uint8_t value_Points_Team2 = 0;
+uint8_t value_SummedPoints_Team1 = 0;
+uint8_t value_SummedPoints_Team2 = 0;
 
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
@@ -83,7 +83,7 @@ void setup()
   // Create the BLE Service
   BLEService *pService = pServer->createService(SERVICE_UUID);
   BLEService *pServiceGame = pServer->createService(SERVICE_UUID_Game);
-  
+
   // Create a BLE Characteristic
   pCharacteristic = pService->createCharacteristic(
       CHARACTERISTIC_UUID,
@@ -116,10 +116,10 @@ void setup()
           BLECharacteristic::PROPERTY_NOTIFY |
           BLECharacteristic::PROPERTY_INDICATE);
 
-  pCharacteristic_Points_Team1->setValue("0");
-  pCharacteristic_Points_Team2->setValue("0");
-  pCharacteristic_SummedPoints_Team1->setValue("0");
-  pCharacteristic_SummedPoints_Team2->setValue("0");
+  // pCharacteristic_Points_Team1->setValue("0");
+  // pCharacteristic_Points_Team2->setValue("0");
+  // pCharacteristic_SummedPoints_Team1->setValue("0");
+  // pCharacteristic_SummedPoints_Team2->setValue("0");
 
   // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml
   // Create a BLE Descriptor
@@ -138,7 +138,7 @@ void setup()
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->addServiceUUID(SERVICE_UUID_Game);
   pAdvertising->setScanResponse(false);
-  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+  pAdvertising->setMinPreferred(0x0); // set value to 0x00 to not advertise this parameter
   BLEDevice::startAdvertising();
   Serial.println("Waiting a client connection to notify...");
 }
@@ -148,13 +148,18 @@ void loop()
   // notify changed value
   if (deviceConnected)
   {
+    uint8_t *value_Points_Team1 = pCharacteristic_Points_Team1->getData();
+    uint8_t *value_Points_Team2 = pCharacteristic_Points_Team2->getData();
+    uint8_t *value_SummedPoints_Team1 = pCharacteristic_SummedPoints_Team1->getData();
+    uint8_t *value_SummedPoints_Team2 = pCharacteristic_SummedPoints_Team2->getData();
+
     pCharacteristic->setValue((uint8_t *)&value, 4);
     pCharacteristic->notify();
     value++;
-    pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 4);
-    pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 4);
-    pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 4);
-    pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, 4);
+    pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, sizeof(value_Points_Team1));
+    pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, sizeof(value_Points_Team2));
+    pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, sizeof(value_SummedPoints_Team1));
+    pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, sizeof(value_SummedPoints_Team2));
     delay(10); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
   }
   // disconnecting
