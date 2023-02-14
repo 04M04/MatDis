@@ -74,7 +74,7 @@ void setup()
   Serial.begin(115200);
 
   // Create the BLE Device
-  BLEDevice::init("NinWing BLE");
+  BLEDevice::init("MatDis BLE");
 
   // Create the BLE Server
   pServer = BLEDevice::createServer();
