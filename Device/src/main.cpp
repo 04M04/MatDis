@@ -148,10 +148,17 @@ void loop()
   // notify changed value
   if (deviceConnected)
   {
-    std::string value_Points_Team1 = pCharacteristic_Points_Team1->getValue();
-    std::string value_Points_Team2 = pCharacteristic_Points_Team2->getValue();
-    std::string value_SummedPoints_Team1 = pCharacteristic_SummedPoints_Team1->getValue();
-    std::string value_SummedPoints_Team2 = pCharacteristic_SummedPoints_Team2->getValue();
+    value_Points_Team1 = pCharacteristic_Points_Team1->getValue();
+    value_Points_Team2 = pCharacteristic_Points_Team2->getValue();
+    value_SummedPoints_Team1 = pCharacteristic_SummedPoints_Team1->getValue();
+    value_SummedPoints_Team2 = pCharacteristic_SummedPoints_Team2->getValue();
+
+    //print out the following values value_Points_Team1, value_Points_Team2, value_SummedPoints_Team1, value_SummedPoints_Team2 with a prefix that explains what the value is
+    if (Serial.available() > 0) {
+      Serial.print("value_Points_Team1: ");
+      Serial.println(sizeof(value_Points_Team1));
+      // Serial.println(typeid(value_Points_Team1).name());
+    }
 
     pCharacteristic->setValue((uint8_t *)&value, 4);
     pCharacteristic->notify();
