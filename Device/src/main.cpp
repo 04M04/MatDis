@@ -67,7 +67,24 @@ class MyServerCallbacks : public BLEServerCallbacks
   {
     deviceConnected = false;
   }
+
+  void onWrite(BLECharacteristic *pCharacteristic)
+  {
+    std::string value = pCharacteristic->getValue();
+
+    if (value.length() > 0)
+    {
+      Serial.println("*********");
+      Serial.print("New value: ");
+      for (int i = 0; i < value.length(); i++)
+        Serial.print(value[i]);
+
+      Serial.println();
+      Serial.println("*********");
+    }
+  }
 };
+
 
 void setup()
 {
@@ -140,6 +157,7 @@ void setup()
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0); // set value to 0x00 to not advertise this parameter
   BLEDevice::startAdvertising();
+
   Serial.println("Waiting a client connection to notify...");
 }
 
@@ -148,21 +166,9 @@ void loop()
   // notify changed value
   if (deviceConnected)
   {
-    value_Points_Team1 = pCharacteristic_Points_Team1->getValue();
-    value_Points_Team2 = pCharacteristic_Points_Team2->getValue();
-    value_SummedPoints_Team1 = pCharacteristic_SummedPoints_Team1->getValue();
-    value_SummedPoints_Team2 = pCharacteristic_SummedPoints_Team2->getValue();
-
-    //print out the following values value_Points_Team1, value_Points_Team2, value_SummedPoints_Team1, value_SummedPoints_Team2 with a prefix that explains what the value is
-    if (Serial.available() > 0) {
-      Serial.print("value_Points_Team1: ");
-      Serial.println(sizeof(value_Points_Team1));
-      // Serial.println(typeid(value_Points_Team1).name());
-    }
-
-    pCharacteristic->setValue((uint8_t *)&value, 4);
-    pCharacteristic->notify();
-    value++;
+    // pCharacteristic->setValue((uint8_t *)&value, 4);
+    // pCharacteristic->notify();
+    // value++;
     pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 4);
     pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 4);
     pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 4);
