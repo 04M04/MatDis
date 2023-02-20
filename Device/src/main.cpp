@@ -67,7 +67,10 @@ class MyServerCallbacks : public BLEServerCallbacks
   {
     deviceConnected = false;
   }
+};
 
+class MyCharacteristicCallbacks : public BLECharacteristicCallbacks
+{
   void onWrite(BLECharacteristic *pCharacteristic)
   {
     std::string value = pCharacteristic->getValue();
@@ -85,6 +88,19 @@ class MyServerCallbacks : public BLEServerCallbacks
   }
 };
 
+class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
+{
+  void onWrite(BLECharacteristic *pCharacteristic)
+  {
+    uint8_t data = pCharacteristic->getValue()[0];
+    Serial.println("*********");
+      Serial.print("New value: ");
+      Serial.print(data);
+      Serial.println();
+      Serial.println("*********");
+    // Do something with the uint8_t data
+  }
+};
 
 void setup()
 {
@@ -141,10 +157,24 @@ void setup()
   // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml
   // Create a BLE Descriptor
   pCharacteristic->addDescriptor(new BLE2902());
+
+  pCharacteristic->setCallbacks(new MyCharacteristicCallbacks());
+
+
   pCharacteristic_Points_Team1->addDescriptor(new BLE2902());
   pCharacteristic_Points_Team2->addDescriptor(new BLE2902());
   pCharacteristic_SummedPoints_Team1->addDescriptor(new BLE2902());
   pCharacteristic_SummedPoints_Team2->addDescriptor(new BLE2902());
+
+  pCharacteristic_Points_Team1->setCallbacks(new MyPointCharacteristicCallbacks());
+  pCharacteristic_Points_Team2->setCallbacks(new MyPointCharacteristicCallbacks());
+  pCharacteristic_SummedPoints_Team1->setCallbacks(new MyPointCharacteristicCallbacks());
+  pCharacteristic_SummedPoints_Team2->setCallbacks(new MyPointCharacteristicCallbacks());
+
+  pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 1);
+  pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 1);
+  pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 1);
+  pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, 1);
 
   // Start the service
   pService->start();
@@ -169,10 +199,7 @@ void loop()
     // pCharacteristic->setValue((uint8_t *)&value, 4);
     // pCharacteristic->notify();
     // value++;
-    pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 4);
-    pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 4);
-    pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 4);
-    pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, 4);
+    
     delay(10); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
   }
   // disconnecting
