@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------------------
 
- dmd_clock_readout.cpp 
+ dmd_test.cpp 
    Demo and example project for the Freetronics DMD, a 512 LED matrix display
    panel arranged in a 32 x 16 layout.
 
@@ -34,12 +34,14 @@ Modified by: Khudhur Alfarhan  // Qudoren@gmail.com
 /*--------------------------------------------------------------------------------------
   Includes
 --------------------------------------------------------------------------------------*/
-
-#include <DMD32.h>        //
+#include <DMD32.h">        //
+#include "fonts/SystemFont5x7.h"
 #include "fonts/Arial_black_16.h"
 
 //Fire up the DMD library as dmd
-DMD dmd(1,1);
+#define DISPLAYS_ACROSS 1
+#define DISPLAYS_DOWN 1
+DMD dmd(DISPLAYS_ACROSS, DISPLAYS_DOWN);
 
    //Timer setup
   //create a hardware timer  of ESP32
@@ -55,30 +57,13 @@ void IRAM_ATTR triggerScan()
 }
 
 /*--------------------------------------------------------------------------------------
-  Show clock numerals on the screen from a 4 digit time value, and select whether the
-  flashing colon is on or off
---------------------------------------------------------------------------------------*/
-void ShowClockNumbers( unsigned int uiTime, byte bColonOn )
-{
-   dmd.clearScreen(true);
-   dmd.drawChar(  1,  3,'0'+((uiTime%10000)/1000), GRAPHICS_NORMAL );   // thousands
-   dmd.drawChar(  8,  3, '0'+((uiTime%1000) /100),  GRAPHICS_NORMAL );   // hundreds
-   dmd.drawChar( 17,  3, '0'+((uiTime%100)  /10),   GRAPHICS_NORMAL );   // tens
-   dmd.drawChar( 25,  3, '0'+ (uiTime%10),          GRAPHICS_NORMAL );   // units
-   if( bColonOn )
-      dmd.drawChar( 15,  3, ':', GRAPHICS_OR     );   // clock colon overlay on
-   else
-      dmd.drawChar( 15,  3, ':', GRAPHICS_NOR    );   // clock colon overlay off
-}
-
-/*--------------------------------------------------------------------------------------
   setup
   Called by the Arduino architecture before the main loop begins
 --------------------------------------------------------------------------------------*/
 void setup(void)
 {
-   
-    //return the clock speed of the CPU
+
+// return the clock speed of the CPU
   uint8_t cpuClock = ESP.getCpuFreqMHz();
   
   // Use 1st timer of 4 
@@ -95,7 +80,6 @@ void setup(void)
 
    //clear/init the DMD pixels held in RAM
    dmd.clearScreen( true );   //true is normal (all pixels off), false is negative (all pixels on)
-   dmd.selectFont(Arial_Black_16);
 
 }
 
@@ -105,26 +89,85 @@ void setup(void)
 --------------------------------------------------------------------------------------*/
 void loop(void)
 {
-   unsigned int ui;
+   byte b;
    
    // 10 x 14 font clock, including demo of OR and NOR modes for pixels so that the flashing colon can be overlayed
-   ui = 1234;
-   ShowClockNumbers( ui, true );
+   dmd.clearScreen( true );
+   dmd.selectFont(Arial_Black_16);
+   dmd.drawChar(  0,  3, '2', GRAPHICS_NORMAL );
+   dmd.drawChar(  7,  3, '3', GRAPHICS_NORMAL );
+   dmd.drawChar( 17,  3, '4', GRAPHICS_NORMAL );
+   dmd.drawChar( 25,  3, '5', GRAPHICS_NORMAL );
+   dmd.drawChar( 15,  3, ':', GRAPHICS_OR     );   // clock colon overlay on
    delay( 1000 );
-   ShowClockNumbers( ui, false );
+   dmd.drawChar( 15,  3, ':', GRAPHICS_NOR    );   // clock colon overlay off
    delay( 1000 );
-   ShowClockNumbers( ui, true );
+   dmd.drawChar( 15,  3, ':', GRAPHICS_OR     );   // clock colon overlay on
    delay( 1000 );
-   ShowClockNumbers( ui, false );
+   dmd.drawChar( 15,  3, ':', GRAPHICS_NOR    );   // clock colon overlay off
+   delay( 1000 );
+   dmd.drawChar( 15,  3, ':', GRAPHICS_OR     );   // clock colon overlay on
    delay( 1000 );
 
-   ui = 2345;
-   ShowClockNumbers( ui, true );
+   dmd.drawMarquee("Scrolling Text",14,(32*DISPLAYS_ACROSS)-1,0);
+   long start=millis();
+   long timer=start;
+   boolean ret=false;
+   while(!ret){
+     if ((timer+30) < millis()) {
+       ret=dmd.stepMarquee(-1,0);
+       timer=millis();
+     }
+   }
+   // half the pixels on
+   dmd.drawTestPattern( PATTERN_ALT_0 );
    delay( 1000 );
-   ShowClockNumbers( ui, false );
+
+   // the other half on
+   dmd.drawTestPattern( PATTERN_ALT_1 );
    delay( 1000 );
-   ShowClockNumbers( ui, true );
+   
+   // display some text
+   dmd.clearScreen( true );
+   dmd.selectFont(System5x7);
+   for (byte x=0;x<DISPLAYS_ACROSS;x++) {
+     for (byte y=0;y<DISPLAYS_DOWN;y++) {
+       dmd.drawString(  2+(32*x),  1+(16*y), "freet", 5, GRAPHICS_NORMAL );
+       dmd.drawString(  2+(32*x),  9+(16*y), "ronic", 5, GRAPHICS_NORMAL );
+     }
+   }
+   delay( 2000 );
+   
+   // draw a border rectangle around the outside of the display
+   dmd.clearScreen( true );
+   dmd.drawBox(  0,  0, (32*DISPLAYS_ACROSS)-1, (16*DISPLAYS_DOWN)-1, GRAPHICS_NORMAL );
    delay( 1000 );
-   ShowClockNumbers( ui, false );
-   delay( 1000 );
+   
+   for (byte y=0;y<DISPLAYS_DOWN;y++) {
+     for (byte x=0;x<DISPLAYS_ACROSS;x++) {
+       // draw an X
+       int ix=32*x;
+       int iy=16*y;
+       dmd.drawLine(  0+ix,  0+iy, 11+ix, 15+iy, GRAPHICS_NORMAL );
+       dmd.drawLine(  0+ix, 15+iy, 11+ix,  0+iy, GRAPHICS_NORMAL );
+       delay( 1000 );
+   
+       // draw a circle
+       dmd.drawCircle( 16+ix,  8+iy,  5, GRAPHICS_NORMAL );
+       delay( 1000 );
+   
+       // draw a filled box
+       dmd.drawFilledBox( 24+ix, 3+iy, 29+ix, 13+iy, GRAPHICS_NORMAL );
+       delay( 1000 );
+     }
+   }
+
+   // stripe chaser
+   for( b = 0 ; b < 20 ; b++ )
+   {
+      dmd.drawTestPattern( (b&1)+PATTERN_STRIPE_0 );
+      delay( 200 );      
+   }
+   delay( 200 );      
+   
 }
