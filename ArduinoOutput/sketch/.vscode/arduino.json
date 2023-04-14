@@ -1,8 +1,0 @@
-#line 1 "C:\\Users\\micsc\\Documents\\big projects\\MatDis\\Device\\.vscode\\arduino.json"
-{
-    "port": "COM3",
-    "configuration": "JTAGAdapter=bridge,PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,LoopCore=1,EventsCore=1,DebugLevel=none,EraseFlash=none",
-    "board": "esp32:esp32:esp32",
-    "sketch": "Device.ino",
-    "output": "../ArduinoOutput"
-}
