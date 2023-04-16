@@ -31,12 +31,13 @@ void IRAM_ATTR triggerScan()
   dmd.scanDisplayBySPI();
 }
 
-char buffer[100];
 void drawCount(int team1_points, int team2_points, int team1_plays, int team2_plays)
 {
-  sprintf(buffer, "%02d", team1_points);
+  char buffer[100];
 
   dmd.selectFont(myFont_16x32);
+
+  sprintf(buffer, "%02d", team1_points);
   dmd.drawChar( 0, 0, buffer[0], GRAPHICS_NORMAL );
   dmd.drawChar(16, 0, buffer[1], GRAPHICS_NORMAL );
   sprintf(buffer, "%02d", team2_points);
@@ -44,6 +45,7 @@ void drawCount(int team1_points, int team2_points, int team1_plays, int team2_pl
   dmd.drawChar(48, 0, buffer[1], GRAPHICS_NORMAL );
 
   dmd.selectFont(myFont_16x16);
+  
   sprintf(buffer, "%02d", team1_plays);
   dmd.drawChar( 0, 32, buffer[0], GRAPHICS_NORMAL );
   dmd.drawChar(16, 32, buffer[1], GRAPHICS_NORMAL );
