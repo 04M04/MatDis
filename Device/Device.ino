@@ -60,8 +60,7 @@ void drawCount(int team1_points, int team2_points, int team1_plays, int team2_pl
 --------------------------------------------------------------------------------------*/
 void setup(void)
 {
-
-// return the clock speed of the CPU
+  // return the clock speed of the CPU
   uint8_t cpuClock = ESP.getCpuFreqMHz();
   
   // Use 1st timer of 4 
