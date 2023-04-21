@@ -12,6 +12,20 @@
 #define DISPLAYS_DOWN 3
 DMD dmd(DISPLAYS_ACROSS, DISPLAYS_DOWN);
 
+//init buttons
+#define BTN_RESET_TEAM1_POINTS_PIN 6
+#define BTN_PLUS_TEAM1_POINTS_PIN 7
+#define BTN_MINUS_TEAM1_POINTS_PIN 8
+#define BTN_RESET_TEAM2_POINTS_PIN 11
+#define BTN_PLUS_TEAM2_POINTS_PIN 10
+#define BTN_MINUS_TEAM2_POINTS_PIN 9
+#define BTN_RESET_TEAM3_POINTS_PIN 13
+#define BTN_PLUS_TEAM3_POINTS_PIN 12
+#define BTN_MINUS_TEAM3_POINTS_PIN 14
+#define BTN_RESET_TEAM4_POINTS_PIN 27
+#define BTN_PLUS_TEAM4_POINTS_PIN 26
+#define BTN_MINUS_TEAM4_POINTS_PIN 25
+
 //Timer setup
 //create a hardware timer  of ESP32
 hw_timer_t * timer = NULL;
@@ -77,6 +91,34 @@ void setup(void)
 
    //clear/init the DMD pixels held in RAM
   dmd.clearScreen( true );   //true is normal (all pixels off), false is negative (all pixels on)
+
+  Serial.begin(9600);
+
+  pinMode(BTN_RESET_TEAM1_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_PLUS_TEAM1_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_MINUS_TEAM1_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_RESET_TEAM2_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_PLUS_TEAM2_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_MINUS_TEAM2_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_RESET_TEAM3_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_PLUS_TEAM3_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_MINUS_TEAM3_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_RESET_TEAM4_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_PLUS_TEAM4_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_MINUS_TEAM4_POINTS_PIN, INPUT_PULLUP);
+
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM1_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM1_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM1_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM2_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM2_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM2_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM3_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM3_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM3_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM4_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM4_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM4_POINTS_PIN), ISR, FALLING);
 
 }
 
