@@ -86,5 +86,5 @@ void setup(void)
 --------------------------------------------------------------------------------------*/
 void loop(void)
 {
-  drawCount(1, 2, 3, 4);
+  drawCount(team1_points, team2_points, team1_plays, team2_plays);
 }
