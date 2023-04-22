@@ -26,6 +26,11 @@ int BTN_RESET_TEAM2_PLAYS_PIN = 27;
 int BTN_ADD_TEAM2_PLAYS_PIN = 26;
 int BTN_SUB_TEAM2_PLAYS_PIN = 25;
 
+//variables to keep track of the timing of recent interrupts
+unsigned long button_time = 0;
+unsigned long last_button_time = 0;
+#define debounceDelay 250  // the debounce time; increase if the output flickers
+
 //Timer setup
 //create a hardware timer  of ESP32
 hw_timer_t * timer = NULL;
@@ -68,53 +73,101 @@ void drawCount(int team1_points, int team2_points, int team1_plays, int team2_pl
   dmd.drawChar(48, 32, buffer[1], GRAPHICS_NORMAL );
 }
 
-// void my_interrupt_handler()
-// {
-//   static unsigned long last_interrupt_time = 0;
-//   unsigned long interrupt_time = millis();
-//   // If interrupts come faster than 200ms, assume it's a bounce and ignore
-//   if (interrupt_time - last_interrupt_time > 200)
-//   {
-//     ... do your thing
-//   }
-//   last_interrupt_time = interrupt_time;
-// }
-
 void IRAM_ATTR trigger_BTN_RESET_TEAM1_POINTS_PIN(){
-  last_btnPressedState = BTN_RESET_TEAM1_POINTS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_RESET_TEAM1_POINTS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_ADD_TEAM1_POINTS_PIN(){
-  last_btnPressedState = BTN_ADD_TEAM1_POINTS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_ADD_TEAM1_POINTS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_SUB_TEAM1_POINTS_PIN(){
-  last_btnPressedState = BTN_SUB_TEAM1_POINTS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_SUB_TEAM1_POINTS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_RESET_TEAM2_POINTS_PIN(){
-  last_btnPressedState = BTN_RESET_TEAM2_POINTS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_RESET_TEAM2_POINTS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_ADD_TEAM2_POINTS_PIN(){
-  last_btnPressedState = BTN_ADD_TEAM2_POINTS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_ADD_TEAM2_POINTS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_SUB_TEAM2_POINTS_PIN(){
-  last_btnPressedState = BTN_SUB_TEAM2_POINTS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_SUB_TEAM2_POINTS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_RESET_TEAM1_PLAYS_PIN(){
-  last_btnPressedState = BTN_RESET_TEAM1_PLAYS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_RESET_TEAM1_PLAYS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_ADD_TEAM1_PLAYS_PIN(){
-  last_btnPressedState = BTN_ADD_TEAM1_PLAYS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_ADD_TEAM1_PLAYS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_SUB_TEAM1_PLAYS_PIN(){
-  last_btnPressedState = BTN_SUB_TEAM1_PLAYS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_SUB_TEAM1_PLAYS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_RESET_TEAM2_PLAYS_PIN(){
-  last_btnPressedState = BTN_RESET_TEAM2_PLAYS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_RESET_TEAM2_PLAYS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_ADD_TEAM2_PLAYS_PIN(){
-  last_btnPressedState = BTN_ADD_TEAM2_PLAYS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_ADD_TEAM2_PLAYS_PIN;
+    last_button_time = button_time;
+  }
 }
 void IRAM_ATTR trigger_BTN_SUB_TEAM2_PLAYS_PIN(){
-  last_btnPressedState = BTN_SUB_TEAM2_PLAYS_PIN;
+  button_time = millis();
+  if (button_time - last_button_time > debounceDelay)
+  {
+    last_btnPressedState = BTN_SUB_TEAM2_PLAYS_PIN;
+    last_button_time = button_time;
+  }
 }
 
 /*--------------------------------------------------------------------------------------
@@ -141,7 +194,7 @@ void setup(void)
    //clear/init the DMD pixels held in RAM
   dmd.clearScreen( true );   //true is normal (all pixels off), false is negative (all pixels on)
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   pinMode(BTN_RESET_TEAM1_POINTS_PIN, INPUT_PULLUP);
   pinMode(BTN_ADD_TEAM1_POINTS_PIN, INPUT_PULLUP);
@@ -184,7 +237,7 @@ void loop(void)
     team1_points = 0;
   }
   if (last_btnPressedState == BTN_ADD_TEAM1_POINTS_PIN) {
-    if (team1_points < 100){
+    if (team1_points < 99){
       team1_points++;
     }
   }
@@ -199,7 +252,7 @@ void loop(void)
     team2_points = 0;
   }
   if (last_btnPressedState == BTN_ADD_TEAM2_POINTS_PIN) {
-    if (team2_points < 100){
+    if (team2_points < 99){
       team2_points++;
     }
   }
@@ -213,7 +266,7 @@ void loop(void)
     team1_plays = 0;
   }
   if (last_btnPressedState == BTN_ADD_TEAM1_PLAYS_PIN) {
-    if (team1_plays < 100){
+    if (team1_plays < 99){
       team1_plays++;
     }
   }
@@ -227,7 +280,7 @@ void loop(void)
     team2_plays = 0;
   }
   if (last_btnPressedState == BTN_ADD_TEAM2_PLAYS_PIN) {
-    if (team2_plays < 100){
+    if (team2_plays < 99){
       team2_plays++;
     }
   }
@@ -237,12 +290,9 @@ void loop(void)
     }
   }
 
-  delay(20);
-
   last_btnPressedState = 0;
 
-  delay(180);
-
+  Serial.print(digitalRead(BTN_ADD_TEAM1_PLAYS_PIN));
   // Serial.print("team1_points: ");
   // Serial.println(team1_points);
   // Serial.print("team2_points: ");
