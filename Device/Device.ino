@@ -13,18 +13,18 @@
 DMD dmd(DISPLAYS_ACROSS, DISPLAYS_DOWN);
 
 //init buttons
-#define BTN_RESET_TEAM1_POINTS_PIN 6
-#define BTN_PLUS_TEAM1_POINTS_PIN 7
-#define BTN_MINUS_TEAM1_POINTS_PIN 8
-#define BTN_RESET_TEAM2_POINTS_PIN 11
-#define BTN_PLUS_TEAM2_POINTS_PIN 10
-#define BTN_MINUS_TEAM2_POINTS_PIN 9
-#define BTN_RESET_TEAM3_POINTS_PIN 13
-#define BTN_PLUS_TEAM3_POINTS_PIN 12
-#define BTN_MINUS_TEAM3_POINTS_PIN 14
-#define BTN_RESET_TEAM4_POINTS_PIN 27
-#define BTN_PLUS_TEAM4_POINTS_PIN 26
-#define BTN_MINUS_TEAM4_POINTS_PIN 25
+int BTN_RESET_TEAM1_POINTS_PIN = 5;
+int BTN_ADD_TEAM1_POINTS_PIN = 17;
+int BTN_SUB_TEAM1_POINTS_PIN = 16;
+int BTN_RESET_TEAM2_POINTS_PIN = 11;
+int BTN_ADD_TEAM2_POINTS_PIN = 10;
+int BTN_SUB_TEAM2_POINTS_PIN = 9;
+int BTN_RESET_TEAM1_PLAYS_PIN = 13;
+int BTN_ADD_TEAM1_PLAYS_PIN = 12;
+int BTN_SUB_TEAM1_PLAYS_PIN = 14;
+int BTN_RESET_TEAM2_PLAYS_PIN = 27;
+int BTN_ADD_TEAM2_PLAYS_PIN = 26;
+int BTN_SUB_TEAM2_PLAYS_PIN = 25;
 
 //Timer setup
 //create a hardware timer  of ESP32
@@ -35,7 +35,7 @@ int team2_points = 0;
 int team1_plays = 0;
 int team2_plays = 0;
 
-
+int last_btnPressedState = 0;
 /*--------------------------------------------------------------------------------------
   Interrupt handler for Timer1 (TimerOne) driven DMD refresh scanning, this gets
   called at the period set in Timer1.initialize();
@@ -68,6 +68,55 @@ void drawCount(int team1_points, int team2_points, int team1_plays, int team2_pl
   dmd.drawChar(48, 32, buffer[1], GRAPHICS_NORMAL );
 }
 
+// void my_interrupt_handler()
+// {
+//   static unsigned long last_interrupt_time = 0;
+//   unsigned long interrupt_time = millis();
+//   // If interrupts come faster than 200ms, assume it's a bounce and ignore
+//   if (interrupt_time - last_interrupt_time > 200)
+//   {
+//     ... do your thing
+//   }
+//   last_interrupt_time = interrupt_time;
+// }
+
+void IRAM_ATTR trigger_BTN_RESET_TEAM1_POINTS_PIN(){
+  last_btnPressedState = BTN_RESET_TEAM1_POINTS_PIN;
+}
+void IRAM_ATTR trigger_BTN_ADD_TEAM1_POINTS_PIN(){
+  last_btnPressedState = BTN_ADD_TEAM1_POINTS_PIN;
+}
+void IRAM_ATTR trigger_BTN_SUB_TEAM1_POINTS_PIN(){
+  last_btnPressedState = BTN_SUB_TEAM1_POINTS_PIN;
+}
+void IRAM_ATTR trigger_BTN_RESET_TEAM2_POINTS_PIN(){
+  last_btnPressedState = BTN_RESET_TEAM2_POINTS_PIN;
+}
+void IRAM_ATTR trigger_BTN_ADD_TEAM2_POINTS_PIN(){
+  last_btnPressedState = BTN_ADD_TEAM2_POINTS_PIN;
+}
+void IRAM_ATTR trigger_BTN_SUB_TEAM2_POINTS_PIN(){
+  last_btnPressedState = BTN_SUB_TEAM2_POINTS_PIN;
+}
+void IRAM_ATTR trigger_BTN_RESET_TEAM1_PLAYS_PIN(){
+  last_btnPressedState = BTN_RESET_TEAM1_PLAYS_PIN;
+}
+void IRAM_ATTR trigger_BTN_ADD_TEAM1_PLAYS_PIN(){
+  last_btnPressedState = BTN_ADD_TEAM1_PLAYS_PIN;
+}
+void IRAM_ATTR trigger_BTN_SUB_TEAM1_PLAYS_PIN(){
+  last_btnPressedState = BTN_SUB_TEAM1_PLAYS_PIN;
+}
+void IRAM_ATTR trigger_BTN_RESET_TEAM2_PLAYS_PIN(){
+  last_btnPressedState = BTN_RESET_TEAM2_PLAYS_PIN;
+}
+void IRAM_ATTR trigger_BTN_ADD_TEAM2_PLAYS_PIN(){
+  last_btnPressedState = BTN_ADD_TEAM2_PLAYS_PIN;
+}
+void IRAM_ATTR trigger_BTN_SUB_TEAM2_PLAYS_PIN(){
+  last_btnPressedState = BTN_SUB_TEAM2_PLAYS_PIN;
+}
+
 /*--------------------------------------------------------------------------------------
   setup
   Called by the Arduino architecture before the main loop begins
@@ -95,30 +144,30 @@ void setup(void)
   Serial.begin(9600);
 
   pinMode(BTN_RESET_TEAM1_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_PLUS_TEAM1_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_MINUS_TEAM1_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_ADD_TEAM1_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_SUB_TEAM1_POINTS_PIN, INPUT_PULLUP);
   pinMode(BTN_RESET_TEAM2_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_PLUS_TEAM2_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_MINUS_TEAM2_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_RESET_TEAM3_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_PLUS_TEAM3_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_MINUS_TEAM3_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_RESET_TEAM4_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_PLUS_TEAM4_POINTS_PIN, INPUT_PULLUP);
-  pinMode(BTN_MINUS_TEAM4_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_ADD_TEAM2_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_SUB_TEAM2_POINTS_PIN, INPUT_PULLUP);
+  pinMode(BTN_RESET_TEAM1_PLAYS_PIN, INPUT_PULLUP);
+  pinMode(BTN_ADD_TEAM1_PLAYS_PIN, INPUT_PULLUP);
+  pinMode(BTN_SUB_TEAM1_PLAYS_PIN, INPUT_PULLUP);
+  pinMode(BTN_RESET_TEAM2_PLAYS_PIN, INPUT_PULLUP);
+  pinMode(BTN_ADD_TEAM2_PLAYS_PIN, INPUT_PULLUP);
+  pinMode(BTN_SUB_TEAM2_PLAYS_PIN, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM1_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM1_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM1_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM2_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM2_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM2_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM3_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM3_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM3_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM4_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_PLUS_TEAM4_POINTS_PIN), ISR, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_MINUS_TEAM4_POINTS_PIN), ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM1_POINTS_PIN), trigger_BTN_RESET_TEAM1_POINTS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_ADD_TEAM1_POINTS_PIN), trigger_BTN_ADD_TEAM1_POINTS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_SUB_TEAM1_POINTS_PIN), trigger_BTN_SUB_TEAM1_POINTS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM2_POINTS_PIN), trigger_BTN_RESET_TEAM2_POINTS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_ADD_TEAM2_POINTS_PIN), trigger_BTN_ADD_TEAM2_POINTS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_SUB_TEAM2_POINTS_PIN), trigger_BTN_SUB_TEAM2_POINTS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM1_PLAYS_PIN), trigger_BTN_RESET_TEAM1_PLAYS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_ADD_TEAM1_PLAYS_PIN), trigger_BTN_ADD_TEAM1_PLAYS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_SUB_TEAM1_PLAYS_PIN), trigger_BTN_SUB_TEAM1_PLAYS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_RESET_TEAM2_PLAYS_PIN), trigger_BTN_RESET_TEAM2_PLAYS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_ADD_TEAM2_PLAYS_PIN), trigger_BTN_ADD_TEAM2_PLAYS_PIN, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BTN_SUB_TEAM2_PLAYS_PIN), trigger_BTN_SUB_TEAM2_PLAYS_PIN, FALLING);
 
 }
 
@@ -128,5 +177,82 @@ void setup(void)
 --------------------------------------------------------------------------------------*/
 void loop(void)
 {
+  // Serial.print(last_btnPressedState);
+ 
+  //Team 1 points--------------------------------------------------
+  if (last_btnPressedState == BTN_RESET_TEAM1_POINTS_PIN) {
+    team1_points = 0;
+  }
+  if (last_btnPressedState == BTN_ADD_TEAM1_POINTS_PIN) {
+    if (team1_points < 100){
+      team1_points++;
+    }
+  }
+  if (last_btnPressedState == BTN_SUB_TEAM1_POINTS_PIN) {
+    if (team1_points > 0){
+      team1_points--;
+    }
+  }
+
+  //Team 2 points--------------------------------------------------
+  if (last_btnPressedState == BTN_RESET_TEAM2_POINTS_PIN) {
+    team2_points = 0;
+  }
+  if (last_btnPressedState == BTN_ADD_TEAM2_POINTS_PIN) {
+    if (team2_points < 100){
+      team2_points++;
+    }
+  }
+  if (last_btnPressedState == BTN_SUB_TEAM2_POINTS_PIN) {
+    if (team2_points > 0){
+      team2_points--;
+    }
+  }
+  //Team 1 plays--------------------------------------------------
+  if (last_btnPressedState == BTN_RESET_TEAM1_PLAYS_PIN) {
+    team1_plays = 0;
+  }
+  if (last_btnPressedState == BTN_ADD_TEAM1_PLAYS_PIN) {
+    if (team1_plays < 100){
+      team1_plays++;
+    }
+  }
+  if (last_btnPressedState == BTN_SUB_TEAM1_PLAYS_PIN) {
+    if (team1_plays > 0){
+      team1_plays--;
+    }
+  }
+  //Team 2 plays--------------------------------------------------
+  if (last_btnPressedState == BTN_RESET_TEAM2_PLAYS_PIN) {
+    team2_plays = 0;
+  }
+  if (last_btnPressedState == BTN_ADD_TEAM2_PLAYS_PIN) {
+    if (team2_plays < 100){
+      team2_plays++;
+    }
+  }
+  if (last_btnPressedState == BTN_SUB_TEAM2_PLAYS_PIN) {
+    if (team2_plays > 0){
+      team2_plays--;
+    }
+  }
+
+  delay(20);
+
+  last_btnPressedState = 0;
+
+  delay(180);
+
+  // Serial.print("team1_points: ");
+  // Serial.println(team1_points);
+  // Serial.print("team2_points: ");
+  // Serial.println(team2_points);
+  // Serial.print("team1_plays: ");
+  // Serial.println(team1_plays);
+  // Serial.print("team2_plays: ");
+  // Serial.println(team2_plays);
+  // Serial.println();
+
+  
   drawCount(team1_points, team2_points, team1_plays, team2_plays);
 }
