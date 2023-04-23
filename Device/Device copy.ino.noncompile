@@ -24,6 +24,8 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
+#define SERIAL_BAUD 115200
+
 BLEServer *pServer = NULL;
 BLECharacteristic *pCharacteristic = NULL;
 
@@ -31,18 +33,6 @@ BLECharacteristic *pCharacteristic_Points_Team1 = NULL;
 BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
-
-int value_Points_Team1 = 0;
-int value_Points_Team2 = 0;
-int value_SummedPoints_Team1 = 0;
-int value_SummedPoints_Team2 = 0;
-
-bool deviceConnected = false;
-bool oldDeviceConnected = false;
-uint32_t value = 0;
-
-// See the following for generating UUIDs:
-// https://www.uuidgenerator.net/
 
 #define SERVICE_UUID "acf4e731-64f4-4c13-b83d-9ea85d92a139"
 #define CHARACTERISTIC_UUID "86a6d5ae-048b-41cf-929f-a54a0d900a02"
@@ -52,6 +42,17 @@ uint32_t value = 0;
 #define CHARACTERISTIC_UUID_Points_Team2 "3f2370b7-6e79-4b16-b9e9-0fcd4b4c6b59"
 #define CHARACTERISTIC_UUID_SummedPoints_Team1 "65a6c077-e5f2-4975-9c17-e5f442227c2a"
 #define CHARACTERISTIC_UUID_SummedPoints_Team2 "1f30b69a-b3f8-4be3-9cfe-9f9b55d33b19"
+
+bool deviceConnected = false;
+bool oldDeviceConnected = false;
+uint32_t value = 0;
+
+int team1_points = 0;
+int team2_points = 0;
+int team1_summedPoints = 0;
+int team2_summedPoints = 0;
+
+
 
 class MyServerCallbacks : public BLEServerCallbacks
 {
@@ -91,18 +92,41 @@ class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
   void onWrite(BLECharacteristic *pCharacteristic)
   {
     uint8_t data = pCharacteristic->getValue()[0];
+    String id = pCharacteristic->getUUID().toString().c_str();
+    if(id == CHARACTERISTIC_UUID_Points_Team1){
+      team1_points = data;
+    }
+    if(id == CHARACTERISTIC_UUID_Points_Team2){
+      team2_points = data;
+    }
+    if(id == CHARACTERISTIC_UUID_SummedPoints_Team1){
+      team1_summedPoints = data;
+    }
+    if(id == CHARACTERISTIC_UUID_SummedPoints_Team2){
+      team2_summedPoints = data;
+    }
     Serial.println("*********");
-      Serial.print("New value: ");
-      Serial.print(data);
-      Serial.println();
-      Serial.println("*********");
+    Serial.print("from UUID: ");
+    Serial.println(id);
+    Serial.print("New value: ");
+    Serial.print(data);
+    Serial.println();
+    Serial.println("team1_points:");
+    Serial.println(team1_points);
+    Serial.println("team2_points:");
+    Serial.println(team2_points);
+    Serial.println("team1_summedPoints:");
+    Serial.println(team1_summedPoints);
+    Serial.println("team2_summedPoints:");
+    Serial.println(team2_summedPoints);
+    Serial.println("*********");
     // Do something with the uint8_t data
   }
 };
 
-void setup()
+void ble_setup()
 {
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD);
 
   // Create the BLE Device
   BLEDevice::init("MatDis BLE");
@@ -169,10 +193,10 @@ void setup()
   pCharacteristic_SummedPoints_Team1->setCallbacks(new MyPointCharacteristicCallbacks());
   pCharacteristic_SummedPoints_Team2->setCallbacks(new MyPointCharacteristicCallbacks());
 
-  pCharacteristic_Points_Team1->setValue((uint8_t *)&value_Points_Team1, 1);
-  pCharacteristic_Points_Team2->setValue((uint8_t *)&value_Points_Team2, 1);
-  pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&value_SummedPoints_Team1, 1);
-  pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&value_SummedPoints_Team2, 1);
+  pCharacteristic_Points_Team1->setValue((uint8_t *)&team1_points, 1);
+  pCharacteristic_Points_Team2->setValue((uint8_t *)&team2_points, 1);
+  pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&team1_summedPoints, 1);
+  pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&team2_summedPoints, 1);
 
   // Start the service
   pService->start();
@@ -189,7 +213,12 @@ void setup()
   Serial.println("Waiting a client connection to notify...");
 }
 
-void loop()
+void setup()
+{
+  ble_setup();
+}
+
+void ble_loop()
 {
   // notify changed value
   if (deviceConnected)
@@ -214,4 +243,24 @@ void loop()
     // do stuff here on connecting
     oldDeviceConnected = deviceConnected;
   }
+}
+
+void pointsSerialOut_loop()
+{
+  Serial.println();
+  Serial.println("team1_points:");
+  Serial.println(team1_points);
+  Serial.println("team2_points:");
+  Serial.println(team2_points);
+  Serial.println("team1_summedPoints:");
+  Serial.println(team1_summedPoints);
+  Serial.println("team2_summedPoints:");
+  Serial.println(team2_summedPoints);
+}
+
+void loop()
+{
+  ble_loop();
+  pointsSerialOut_loop();
+  
 }
