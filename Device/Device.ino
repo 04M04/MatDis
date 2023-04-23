@@ -1,4 +1,5 @@
 // created by 04M04
+// version: V1.0.1
 
 /*--------------------------------------------------------------------------------------
   Includes
@@ -194,7 +195,7 @@ void setup(void)
    //clear/init the DMD pixels held in RAM
   dmd.clearScreen( true );   //true is normal (all pixels off), false is negative (all pixels on)
 
-  Serial.begin(115200);
+  
 
   pinMode(BTN_RESET_TEAM1_POINTS_PIN, INPUT_PULLUP);
   pinMode(BTN_ADD_TEAM1_POINTS_PIN, INPUT_PULLUP);
@@ -222,6 +223,9 @@ void setup(void)
   attachInterrupt(digitalPinToInterrupt(BTN_ADD_TEAM2_PLAYS_PIN), trigger_BTN_ADD_TEAM2_PLAYS_PIN, FALLING);
   attachInterrupt(digitalPinToInterrupt(BTN_SUB_TEAM2_PLAYS_PIN), trigger_BTN_SUB_TEAM2_PLAYS_PIN, FALLING);
 
+  // Serial.begin(115200);
+  // Serial.println("created by 04M04");
+  // Serial.println("version: V1.0.1");
 }
 
 /*--------------------------------------------------------------------------------------
@@ -246,7 +250,6 @@ void loop(void)
       team1_points--;
     }
   }
-
   //Team 2 points--------------------------------------------------
   if (last_btnPressedState == BTN_RESET_TEAM2_POINTS_PIN) {
     team2_points = 0;
@@ -292,7 +295,6 @@ void loop(void)
 
   last_btnPressedState = 0;
 
-  Serial.print(digitalRead(BTN_ADD_TEAM1_PLAYS_PIN));
   // Serial.print("team1_points: ");
   // Serial.println(team1_points);
   // Serial.print("team2_points: ");
