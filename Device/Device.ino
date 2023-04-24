@@ -1,5 +1,5 @@
 //created by 04M04
-//VERSION v1.0.3
+//VERSION v1.0.4
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -8,7 +8,7 @@
 
 // #define SERIAL_BAUD 115200
 #define DEVICE_NAME "MATDIS BLE"
-#define VERSION "v1.0.3"
+#define VERSION "v1.0.4"
 #define MODEL "MATDIS v1"
 #define DEVELOPER "04M04"
 
@@ -22,7 +22,7 @@ BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
 
-#define SERVICE_UUID "b4d964fe-3303-4a98-b9b3-490e08371424"
+#define SERVICE_UUID_Infos "b4d964fe-3303-4a98-b9b3-490e08371424"
 #define CHARACTERISTIC_UUID_Model "17d5dbf1-6743-47ab-8060-657b36c86984"
 #define CHARACTERISTIC_UUID_Version "5641f4d2-97a6-481f-9fa4-34e967fd394d"
 #define CHARACTERISTIC_UUID_Developer "68f8edca-7c50-46d5-b593-e16d33d10ae8"
@@ -337,17 +337,17 @@ void ble_setup()
   pServer->setCallbacks(new MyServerCallbacks());
 
   // Create the BLE Service
-  BLEService *pService = pServer->createService(SERVICE_UUID);
+  BLEService *pServiceInfos = pServer->createService(SERVICE_UUID_Infos);
   BLEService *pServiceGame = pServer->createService(SERVICE_UUID_Game);
 
   // Create a BLE Characteristic
-  pCharacteristic_Model = pService->createCharacteristic(
+  pCharacteristic_Model = pServiceInfos->createCharacteristic(
       CHARACTERISTIC_UUID_Model,
       BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_Version = pService->createCharacteristic(
+  pCharacteristic_Version = pServiceInfos->createCharacteristic(
       CHARACTERISTIC_UUID_Version,
       BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_Developer = pService->createCharacteristic(
+  pCharacteristic_Developer = pServiceInfos->createCharacteristic(
       CHARACTERISTIC_UUID_Developer,
       BLECharacteristic::PROPERTY_READ);
 
@@ -408,12 +408,12 @@ void ble_setup()
   pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&team2_summedPoints, 1);
 
   // Start the service
-  pService->start();
+  pServiceInfos->start();
   pServiceGame->start();
 
   // Start advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->addServiceUUID(SERVICE_UUID_Infos);
   pAdvertising->addServiceUUID(SERVICE_UUID_Game);
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0); // set value to 0x00 to not advertise this parameter
