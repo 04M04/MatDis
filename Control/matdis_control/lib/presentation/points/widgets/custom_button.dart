@@ -8,6 +8,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
+
     return InkResponse(
       // onTap: () =>
       //     BlocProvider.of<AdvicerBloc>(context).add(AdviceRequestedEvent()),
@@ -36,7 +37,7 @@ class CustomButton extends StatelessWidget {
               left: -40,
               child: Card(
                 elevation: 3,
-                color: Colors.redAccent,
+                color: Colors.white54,
                 child: SizedBox(
                   width: 60,
                   height: 60,
@@ -54,7 +55,7 @@ class CustomButton extends StatelessWidget {
             right: -40,
             child: Card(
               elevation: 3,
-              color: Colors.lightGreen,
+              color: Colors.white70,
               child: SizedBox(
                 width: 60,
                 height: 60,
