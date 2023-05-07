@@ -1,9 +1,9 @@
-import 'package:matdis_control/application/advicer/advicer_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:matdis_control/application/advicer/advicer_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CustomButton extends StatelessWidget {
-  const CustomButton({super.key});
+class CustomPointsFieldHorizontal extends StatelessWidget {
+  const CustomPointsFieldHorizontal({super.key});
 
   @override
   Widget build(BuildContext context) {

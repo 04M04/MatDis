@@ -1,9 +1,12 @@
-import 'package:matdis_control/application/advicer/advicer_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:matdis_control/application/advicer/advicer_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CustomButton extends StatelessWidget {
-  const CustomButton({super.key});
+class CustomPointsFieldVertical extends StatelessWidget {
+  final Color color;
+  final int points;
+  const CustomPointsFieldVertical(
+      {super.key, required this.color, required this.points});
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +21,14 @@ class CustomButton extends StatelessWidget {
         children: [
           Card(
             elevation: 1,
-            color: Colors.blue,
+            color: color,
             child: Container(
                 width: 120,
                 height: 120,
-                child: const Center(
+                child: Center(
                   child: Text(
-                    "00",
-                    style: TextStyle(
+                    points.toString(),
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 50,
                         fontWeight: FontWeight.normal),
@@ -33,17 +36,17 @@ class CustomButton extends StatelessWidget {
                 )),
           ),
           const Positioned(
-              top: 30,
-              left: -40,
+              top: -40,
+              left: 30,
               child: Card(
                 elevation: 3,
-                color: Colors.white54,
+                color: Colors.white70,
                 child: SizedBox(
                   width: 60,
                   height: 60,
                   child: Center(
                     child: Icon(
-                      Icons.remove,
+                      Icons.add,
                       color: Colors.white,
                       size: 40,
                     ),
@@ -51,17 +54,17 @@ class CustomButton extends StatelessWidget {
                 ),
               )),
           const Positioned(
-            top: 30,
-            right: -40,
+            bottom: -40,
+            left: 30,
             child: Card(
               elevation: 3,
-              color: Colors.white70,
+              color: Colors.white38,
               child: SizedBox(
                 width: 60,
                 height: 60,
                 child: Center(
                   child: Icon(
-                    Icons.add,
+                    Icons.remove,
                     color: Colors.white,
                     size: 40,
                   ),

@@ -1,7 +1,8 @@
 import 'package:matdis_control/application/points/points_bloc.dart';
 import 'package:matdis_control/presentation/points/points_error_message.dart';
 import 'package:matdis_control/presentation/points/widgets/points_field.dart';
-import 'package:matdis_control/presentation/points/widgets/custom_button_horizontal.dart';
+import 'package:matdis_control/presentation/points/widgets/custom_points_field_horizontal.dart';
+import 'package:matdis_control/presentation/points/widgets/custom_points_field_vertical.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +16,7 @@ class PointsPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "Advicer",
+          "Matdis Control",
           style: themeData.textTheme.displayLarge,
         ),
       ),
@@ -25,10 +26,32 @@ class PointsPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              CustomButton(),
-              CustomButton(),
-              CustomButton(),
-              CustomButton(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CustomPointsFieldVertical(
+                    color: Colors.redAccent,
+                    points: 4,
+                  ),
+                  CustomPointsFieldVertical(
+                    color: Colors.redAccent,
+                    points: 4,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CustomPointsFieldVertical(
+                    color: Colors.blueAccent,
+                    points: 4,
+                  ),
+                  CustomPointsFieldVertical(
+                    color: Colors.blueAccent,
+                    points: 4,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
