@@ -1,7 +1,7 @@
 import 'package:matdis_control/application/points/points_bloc.dart';
 import 'package:matdis_control/presentation/points/points_error_message.dart';
 import 'package:matdis_control/presentation/points/widgets/points_field.dart';
-import 'package:matdis_control/presentation/points/widgets/custom_button.dart';
+import 'package:matdis_control/presentation/points/widgets/custom_button_horizontal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
