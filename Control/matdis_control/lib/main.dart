@@ -1,5 +1,4 @@
 import 'package:matdis_control/application/advicer/advicer_bloc.dart';
-import 'package:matdis_control/presentation/advicer/advicer_page.dart';
 import 'package:matdis_control/presentation/points/points_page.dart';
 import 'package:matdis_control/theme.dart';
 import 'package:flutter/material.dart';
