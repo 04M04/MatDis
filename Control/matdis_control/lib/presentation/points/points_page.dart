@@ -1,6 +1,5 @@
 import 'package:matdis_control/application/points/points_bloc.dart';
 import 'package:matdis_control/presentation/points/points_error_message.dart';
-import 'package:matdis_control/presentation/points/widgets/points_field.dart';
 import 'package:matdis_control/presentation/points/widgets/custom_points_field_horizontal.dart';
 import 'package:matdis_control/presentation/points/widgets/custom_points_field_vertical.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,7 @@ class PointsPage extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -30,10 +29,28 @@ class PointsPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   CustomPointsFieldVertical(
+                    onReset: () {
+                      print("field 1 resetPressed");
+                    },
+                    onAdd: () {
+                      print("field 1 addPressed");
+                    },
+                    onRemove: () {
+                      print("field 1 removePressed");
+                    },
                     color: Colors.redAccent,
                     points: 4,
                   ),
                   CustomPointsFieldVertical(
+                    onReset: () {
+                      print("field 2 resetPressed");
+                    },
+                    onAdd: () {
+                      print("field 2 addPressed");
+                    },
+                    onRemove: () {
+                      print("field 2 removePressed");
+                    },
                     color: Colors.redAccent,
                     points: 4,
                   ),
@@ -43,10 +60,28 @@ class PointsPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   CustomPointsFieldVertical(
+                    onReset: () {
+                      print("field 3 resetPressed");
+                    },
+                    onAdd: () {
+                      print("field 3 addPressed");
+                    },
+                    onRemove: () {
+                      print("field 3 removePressed");
+                    },
                     color: Colors.blueAccent,
                     points: 4,
                   ),
                   CustomPointsFieldVertical(
+                    onReset: () {
+                      print("field 4 resetPressed");
+                    },
+                    onAdd: () {
+                      print("field 4 addPressed");
+                    },
+                    onRemove: () {
+                      print("field 4 removePressed");
+                    },
                     color: Colors.blueAccent,
                     points: 4,
                   ),
