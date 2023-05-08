@@ -6,3 +6,9 @@ abstract class PointsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+///event when user presses add or remove button
+class PointsRequestedEvent extends PointsEvent {
+  
+}
+

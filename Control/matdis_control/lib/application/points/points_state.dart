@@ -8,3 +8,9 @@ abstract class PointsState extends Equatable {
 }
 
 class PointsInitial extends PointsState {}
+
+class PointsStateLoading extends PointsState {}
+
+class PointsStateLoaded extends PointsState {}
+
+class PointsStateError extends PointsState {}

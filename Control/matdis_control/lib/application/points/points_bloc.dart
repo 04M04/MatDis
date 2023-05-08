@@ -6,8 +6,6 @@ part 'points_state.dart';
 
 class PointsBloc extends Bloc<PointsEvent, PointsState> {
   PointsBloc() : super(PointsInitial()) {
-    on<PointsEvent>((event, emit) {
-      // TODO: implement event handler
-    });
+    on<PointsRequestedEvent>((event, emit) {});
   }
 }
