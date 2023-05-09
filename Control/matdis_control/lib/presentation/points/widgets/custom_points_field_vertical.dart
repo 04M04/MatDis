@@ -29,64 +29,77 @@ class CustomPointsFieldVertical extends StatelessWidget {
           Center(
             child: InkResponse(
               onLongPress: () => onReset(),
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: color,
-                  ),
-                  width: 160,
-                  height: 160,
-                  // color: color,
-                  child: Center(
-                    child: Text(
-                      points.toString(),
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 70,
-                          fontWeight: FontWeight.normal),
+              child: Material(
+                elevation: 10,
+                borderRadius: BorderRadius.circular(30),
+                color: color,
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                  )),
+                    width: 160,
+                    height: 160,
+                    // color: color,
+                    child: Center(
+                      child: Text(
+                        points.toString(),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 70,
+                            fontWeight: FontWeight.normal),
+                      ),
+                    )),
+              ),
             ),
           ),
           Positioned(
-              top: 0,
-              left: 30,
-              child: InkResponse(
-                onTap: () => onAdd(),
+            top: 0,
+            left: 30,
+            child: InkResponse(
+              onTap: () => onAdd(),
+              child: Material(
+                color: Colors.white60,
+                elevation: 10,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
                 child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white60,
-                  ),
                   width: 100,
                   height: 100,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
                   child: const Icon(
                     Icons.add,
                     color: Colors.white,
                     size: 70,
                   ),
                 ),
-              )),
+              ),
+            ),
+          ),
           Positioned(
             bottom: 0,
             left: 30,
             child: InkResponse(
               onTap: () => onRemove(),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white38,
-                ),
-                width: 100,
-                height: 100,
-                child: const Icon(
-                  Icons.remove,
-                  color: Colors.white,
-                  size: 70,
+              child: Material(
+                color: Colors.white38,
+                elevation: 10,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  child: const Icon(
+                    Icons.remove,
+                    color: Colors.white,
+                    size: 70,
+                  ),
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
