@@ -16,9 +16,9 @@ class CustomPointsFieldVertical extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
+    // final themeData = Theme.of(context);
 
-    return Container(
+    return SizedBox(
       width: 160,
       height: 280,
       child: Stack(
@@ -58,7 +58,7 @@ class CustomPointsFieldVertical extends StatelessWidget {
               child: Material(
                 color: Colors.white60,
                 elevation: 10,
-                borderRadius: BorderRadius.all(Radius.circular(20)),
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
                 child: Container(
                   width: 100,
                   height: 100,
@@ -82,7 +82,7 @@ class CustomPointsFieldVertical extends StatelessWidget {
               child: Material(
                 color: Colors.white38,
                 elevation: 10,
-                borderRadius: BorderRadius.all(Radius.circular(20)),
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
                 child: Container(
                   width: 100,
                   height: 100,
