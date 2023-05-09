@@ -1,7 +1,6 @@
 import 'package:matdis_control/application/points/points_bloc.dart';
-import 'package:matdis_control/presentation/points/points_error_message.dart';
-import 'package:matdis_control/presentation/points/widgets/custom_points_field_horizontal.dart';
-import 'package:matdis_control/presentation/points/widgets/custom_points_field_vertical.dart';
+import 'package:matdis_control/presentation/points/points_big_icon_message.dart';
+import 'package:matdis_control/presentation/points/widgets/custom_points_field_arranged.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,6 +9,7 @@ class PointsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pointsBlock = PointsBloc();
     final themeData = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -21,75 +21,40 @@ class PointsPage extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  CustomPointsFieldVertical(
-                    onReset: () {
-                      print("field 1 resetPressed");
-                    },
-                    onAdd: () {
-                      print("field 1 addPressed");
-                    },
-                    onRemove: () {
-                      print("field 1 removePressed");
-                    },
-                    color: Colors.redAccent,
-                    points: 4,
-                  ),
-                  CustomPointsFieldVertical(
-                    onReset: () {
-                      print("field 2 resetPressed");
-                    },
-                    onAdd: () {
-                      print("field 2 addPressed");
-                    },
-                    onRemove: () {
-                      print("field 2 removePressed");
-                    },
-                    color: Colors.redAccent,
-                    points: 4,
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  CustomPointsFieldVertical(
-                    onReset: () {
-                      print("field 3 resetPressed");
-                    },
-                    onAdd: () {
-                      print("field 3 addPressed");
-                    },
-                    onRemove: () {
-                      print("field 3 removePressed");
-                    },
-                    color: Colors.blueAccent,
-                    points: 4,
-                  ),
-                  CustomPointsFieldVertical(
-                    onReset: () {
-                      print("field 4 resetPressed");
-                    },
-                    onAdd: () {
-                      print("field 4 addPressed");
-                    },
-                    onRemove: () {
-                      print("field 4 removePressed");
-                    },
-                    color: Colors.blueAccent,
-                    points: 4,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: BlocBuilder<PointsBloc, PointsState>(
+              bloc: pointsBlock,
+              builder: (context, state) {
+                if (state is PointsInitial) {
+                  // return const PointsBigIconMessage(
+                  //   message:
+                  //       "Not connected to device!\nPlease connect to device and\ntry again!",
+                  //   messageIcon: Icons.bluetooth_disabled,
+                  // );
+                  return Stack(clipBehavior: Clip.none, children: const [
+                    CustomPointsFieldArranged(),
+                  ]);
+                } else if (state is PointsStateLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is PointsStateLoaded) {
+                  return Stack(clipBehavior: Clip.none, children: const [
+                    CustomPointsFieldArranged(),
+                  ]);
+                } else if (state is PointsStateError) {
+                  return const PointsBigIconMessage(
+                    message:
+                        "There is some error!\nPlease ask your Administrator for help.",
+                  );
+                }
+                return const Placeholder();
+              },
+            )
+
+            // const PointsBigIconMessage(
+            //   message:
+            //       "There is some error!\nPlease ask your Administrator for help.",
+            // ),
+            ),
       ),
     );
   }
