@@ -53,25 +53,23 @@ class AppTheme {
       appBarTheme: const AppBarTheme(
           color: _appbarColorLight,
           iconTheme: IconThemeData(color: _iconColor)),
-      bottomAppBarColor: _appbarColorLight,
       colorScheme: ColorScheme.light(
           primary: _lightPrimaryColor,
           onPrimary: _lightOnPrimaryColor,
           secondary: _accentColorDark,
           primaryContainer: _lightPrimaryVariantColor),
-      textTheme: _lightTextTheme);
+      textTheme: _lightTextTheme, bottomAppBarTheme: const BottomAppBarTheme(color: _appbarColorLight));
 
   static final ThemeData darkTheme = ThemeData(
       scaffoldBackgroundColor: _darkPrimaryColor,
       appBarTheme: AppBarTheme(
           color: _appbarColorDark,
           iconTheme: const IconThemeData(color: _iconColor)),
-      bottomAppBarColor: _appbarColorDark,
       colorScheme: ColorScheme.dark(
         primary: _darkPrimaryColor,
         secondary: _accentColorDark,
         onPrimary: _darkOnPrimaryColor,
         primaryContainer: _darkPrimaryVariantColor,
       ),
-      textTheme: _darkTextTheme);
+      textTheme: _darkTextTheme, bottomAppBarTheme: BottomAppBarTheme(color: _appbarColorDark));
 }
