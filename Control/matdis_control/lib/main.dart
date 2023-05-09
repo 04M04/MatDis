@@ -1,4 +1,5 @@
 import 'package:matdis_control/application/advicer/advicer_bloc.dart';
+import 'package:matdis_control/application/points/points_bloc.dart';
 import 'package:matdis_control/presentation/points/points_page.dart';
 import 'package:matdis_control/theme.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
       home: BlocProvider(
-          create: (BuildContext context) => sl<AdvicerBloc>(),
+          create: (BuildContext context) => sl<PointsBloc>(),
           child: const PointsPage()),
     );
   }

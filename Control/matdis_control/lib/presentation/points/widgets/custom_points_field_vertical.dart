@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:matdis_control/application/advicer/advicer_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomPointsFieldVertical extends StatelessWidget {
   final Color color;
