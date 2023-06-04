@@ -1,16 +1,7 @@
 # matdis_control
 
-A new Flutter project.
+This will be a controll app for MatDis.
+It connects over BLE.
+With this it should be possible to update the score with your phone.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This was a rebuild on an old project of mine. On this way I could save time.

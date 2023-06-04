@@ -1,23 +1,31 @@
 //created by 04M04
-//Version 1.0.2
+//VERSION v1.0.4
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
-#define SERIAL_BAUD 115200
+// #define SERIAL_BAUD 115200
+#define DEVICE_NAME "MATDIS BLE"
+#define VERSION "v1.0.4"
+#define MODEL "MATDIS v1"
+#define DEVELOPER "04M04"
 
 BLEServer *pServer = NULL;
-BLECharacteristic *pCharacteristic = NULL;
+BLECharacteristic *pCharacteristic_Model = NULL;
+BLECharacteristic *pCharacteristic_Version = NULL;
+BLECharacteristic *pCharacteristic_Developer = NULL;
 
 BLECharacteristic *pCharacteristic_Points_Team1 = NULL;
 BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
 
-#define SERVICE_UUID "acf4e731-64f4-4c13-b83d-9ea85d92a139"
-#define CHARACTERISTIC_UUID "86a6d5ae-048b-41cf-929f-a54a0d900a02"
+#define SERVICE_UUID_Infos "b4d964fe-3303-4a98-b9b3-490e08371424"
+#define CHARACTERISTIC_UUID_Model "17d5dbf1-6743-47ab-8060-657b36c86984"
+#define CHARACTERISTIC_UUID_Version "5641f4d2-97a6-481f-9fa4-34e967fd394d"
+#define CHARACTERISTIC_UUID_Developer "68f8edca-7c50-46d5-b593-e16d33d10ae8"
 
 #define SERVICE_UUID_Game "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 #define CHARACTERISTIC_UUID_Points_Team1 "9b5a6f18-6c76-4f5e-aa5e-c5a5e6d1a42e"
@@ -258,25 +266,6 @@ class MyServerCallbacks : public BLEServerCallbacks
   }
 };
 
-class MyCharacteristicCallbacks : public BLECharacteristicCallbacks
-{
-  void onWrite(BLECharacteristic *pCharacteristic)
-  {
-    std::string value = pCharacteristic->getValue();
-
-    if (value.length() > 0)
-    {
-      Serial.println("*********");
-      Serial.print("New value: ");
-      for (int i = 0; i < value.length(); i++)
-        Serial.print(value[i]);
-
-      Serial.println();
-      Serial.println("*********");
-    }
-  }
-};
-
 class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic *pCharacteristic)
@@ -327,38 +316,41 @@ class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
         team2_summedPoints = data;
       }
     }
-    Serial.println("*********");
-    Serial.print("from UUID: ");
-    Serial.println(id);
-    Serial.print("New value: ");
-    Serial.println(data);
-    Serial.println("*********");
-    // Do something with the uint8_t data
+    // Serial.println("*********");
+    // Serial.print("from UUID: ");
+    // Serial.println(id);
+    // Serial.print("New value: ");
+    // Serial.println(data);
+    // Serial.println("*********");
   }
 };
 
 void ble_setup()
 {
-  Serial.begin(SERIAL_BAUD);
+  // Serial.begin(SERIAL_BAUD);
 
   // Create the BLE Device
-  BLEDevice::init("MatDis BLE");
+  BLEDevice::init(DEVICE_NAME);
 
   // Create the BLE Server
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
 
   // Create the BLE Service
-  BLEService *pService = pServer->createService(SERVICE_UUID);
+  BLEService *pServiceInfos = pServer->createService(SERVICE_UUID_Infos);
   BLEService *pServiceGame = pServer->createService(SERVICE_UUID_Game);
 
   // Create a BLE Characteristic
-  pCharacteristic = pService->createCharacteristic(
-      CHARACTERISTIC_UUID,
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE |
-          BLECharacteristic::PROPERTY_NOTIFY |
-          BLECharacteristic::PROPERTY_INDICATE);
+  pCharacteristic_Model = pServiceInfos->createCharacteristic(
+      CHARACTERISTIC_UUID_Model,
+      BLECharacteristic::PROPERTY_READ);
+  pCharacteristic_Version = pServiceInfos->createCharacteristic(
+      CHARACTERISTIC_UUID_Version,
+      BLECharacteristic::PROPERTY_READ);
+  pCharacteristic_Developer = pServiceInfos->createCharacteristic(
+      CHARACTERISTIC_UUID_Developer,
+      BLECharacteristic::PROPERTY_READ);
+
   pCharacteristic_Points_Team1 = pServiceGame->createCharacteristic(
       CHARACTERISTIC_UUID_Points_Team1,
       BLECharacteristic::PROPERTY_READ |
@@ -391,9 +383,13 @@ void ble_setup()
 
   // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml
   // Create a BLE Descriptor
-  pCharacteristic->addDescriptor(new BLE2902());
+  pCharacteristic_Model->addDescriptor(new BLE2902());
+  pCharacteristic_Version->addDescriptor(new BLE2902());
+  pCharacteristic_Developer->addDescriptor(new BLE2902());
 
-  pCharacteristic->setCallbacks(new MyCharacteristicCallbacks());
+  pCharacteristic_Model->setValue((uint8_t *)&MODEL,sizeof(MODEL));
+  pCharacteristic_Version->setValue((uint8_t *)&VERSION,sizeof(VERSION));
+  pCharacteristic_Developer->setValue((uint8_t *)&DEVELOPER,sizeof(DEVELOPER));
 
 
   pCharacteristic_Points_Team1->addDescriptor(new BLE2902());
@@ -412,18 +408,18 @@ void ble_setup()
   pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&team2_summedPoints, 1);
 
   // Start the service
-  pService->start();
+  pServiceInfos->start();
   pServiceGame->start();
 
   // Start advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->addServiceUUID(SERVICE_UUID_Infos);
   pAdvertising->addServiceUUID(SERVICE_UUID_Game);
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0); // set value to 0x00 to not advertise this parameter
   BLEDevice::startAdvertising();
 
-  Serial.println("Waiting a client connection to notify...");
+  // Serial.println("Waiting a client connection to notify...");
 }
 
 void setup()
@@ -535,7 +531,7 @@ void ble_loop()
   {
     delay(500);                  // give the bluetooth stack the chance to get things ready
     pServer->startAdvertising(); // restart advertising
-    Serial.println("start advertising");
+    // Serial.println("start advertising");
     oldDeviceConnected = deviceConnected;
   }
   // connecting
@@ -546,18 +542,18 @@ void ble_loop()
   }
 }
 
-void pointsSerialOut_loop()
-{
-  Serial.println();
-  Serial.println("team1_points:");
-  Serial.println(team1_points);
-  Serial.println("team2_points:");
-  Serial.println(team2_points);
-  Serial.println("team1_summedPoints:");
-  Serial.println(team1_summedPoints);
-  Serial.println("team2_summedPoints:");
-  Serial.println(team2_summedPoints);
-}
+// void pointsSerialOut_loop()
+// {
+//   Serial.println();
+//   Serial.println("team1_points:");
+//   Serial.println(team1_points);
+//   Serial.println("team2_points:");
+//   Serial.println(team2_points);
+//   Serial.println("team1_summedPoints:");
+//   Serial.println(team1_summedPoints);
+//   Serial.println("team2_summedPoints:");
+//   Serial.println(team2_summedPoints);
+// }
 
 void loop()
 {
