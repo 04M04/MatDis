@@ -49,5 +49,14 @@ class PointsBloc extends Bloc<PointsEvent, PointsState> {
         print("here is the data: ${event.pointsFieldId}");
       }
     });
+
+    ///event when user presses connect button
+    on<ConnectToBluetoothDevice>((event, emit) async {
+      emit(PointsStateLoading());
+      emit(PointsStateLoaded());
+      if (kDebugMode) {
+        print("device name: ${event.deviceName}");
+      }
+    });
   }
 }

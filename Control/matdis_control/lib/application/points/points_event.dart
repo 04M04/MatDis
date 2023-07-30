@@ -24,3 +24,9 @@ class PointsRemoveRequestedEvent extends PointsEvent {
   final int pointsFieldId;
   const PointsRemoveRequestedEvent({required this.pointsFieldId});
 }
+
+///event when user presses connect button
+class PointsConnectToBluetoothDevice extends PointsEvent {
+  final String deviceName;
+  const PointsConnectToBluetoothDevice({required this.deviceName});
+}

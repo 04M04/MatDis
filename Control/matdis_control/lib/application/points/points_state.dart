@@ -21,3 +21,9 @@ class PointsStateSend extends PointsState {}
 
 ///state when a error occurs
 class PointsStateError extends PointsState {}
+
+///state when a connecting to ble device
+class PointsStateConnecting extends PointsState {}
+
+///state when a connected to ble device
+class PointsStateConnected extends PointsState {}
