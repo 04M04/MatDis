@@ -8,7 +8,7 @@
 
 // #define SERIAL_BAUD 115200
 #define DEVICE_NAME "MATDIS BLE"
-#define VERSION "v1.0.4"
+#define VERSION "v1.1.0"
 #define MODEL "MATDIS v1"
 #define DEVELOPER "04M04"
 
