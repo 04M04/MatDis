@@ -1,5 +1,5 @@
 //created by 04M04
-//VERSION v1.0.4
+//VERSION v1.1.0
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
