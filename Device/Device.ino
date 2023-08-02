@@ -17,6 +17,8 @@ BLECharacteristic *pCharacteristic_Model = NULL;
 BLECharacteristic *pCharacteristic_Version = NULL;
 BLECharacteristic *pCharacteristic_Developer = NULL;
 
+BLECharacteristic *pCharacteristic_Brightness = NULL;
+
 BLECharacteristic *pCharacteristic_Points_Team1 = NULL;
 BLECharacteristic *pCharacteristic_Points_Team2 = NULL;
 BLECharacteristic *pCharacteristic_SummedPoints_Team1 = NULL;
@@ -26,6 +28,9 @@ BLECharacteristic *pCharacteristic_SummedPoints_Team2 = NULL;
 #define CHARACTERISTIC_UUID_Model "17d5dbf1-6743-47ab-8060-657b36c86984"
 #define CHARACTERISTIC_UUID_Version "5641f4d2-97a6-481f-9fa4-34e967fd394d"
 #define CHARACTERISTIC_UUID_Developer "68f8edca-7c50-46d5-b593-e16d33d10ae8"
+
+#define SERVICE_UUID_Settings "2a630f38-f28b-4645-bc6e-a608d123d9ea"
+#define CHARACTERISTIC_UUID_Brightness "1b9c30d8-7811-4b01-b995-29241a40bde4"
 
 #define SERVICE_UUID_Game "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 #define CHARACTERISTIC_UUID_Points_Team1 "9b5a6f18-6c76-4f5e-aa5e-c5a5e6d1a42e"
@@ -37,10 +42,16 @@ bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint32_t value = 0;
 
-int team1_points = 0;
-int team2_points = 0;
-int team1_summedPoints = 0;
-int team2_summedPoints = 0;
+int brightness = 3; // 0 - 255
+
+int team1_points = 0; // 00 - 99
+int team2_points = 0; // 00 - 99
+int team1_summedPoints = 0; // 00 - 99
+int team2_summedPoints = 0; // 00 - 99
+
+int pwmChannel = 0; // Selects channel 0
+int frequence = 2100000; //24 KHz // PWM frequency of 1 KHz
+int resolution = 8; // 8-bit resolution, 256 possible values
 
 #include <DMD32.h>
 #include "fonts/myFont_16x16.h"
@@ -80,6 +91,7 @@ int last_btnPressedState = 0;
 void IRAM_ATTR triggerScan()
 {
   dmd.scanDisplayBySPI();
+  ledcWrite(pwmChannel, brightness);
 }
 
 void drawCount(int team1_points, int team2_points, int team1_summedPoints, int team2_summedPoints)
@@ -103,6 +115,13 @@ void drawCount(int team1_points, int team2_points, int team1_summedPoints, int t
   sprintf(buffer, "%02d", team2_summedPoints);
   dmd.drawChar(32, 32, buffer[0], GRAPHICS_NORMAL );
   dmd.drawChar(48, 32, buffer[1], GRAPHICS_NORMAL );
+}
+
+void brightness_setup()
+{
+  ledcSetup(pwmChannel, frequence, resolution);
+  ledcAttachPin(PIN_DMD_nOE, pwmChannel);
+  ledcWrite(pwmChannel, brightness);
 }
 
 void dmd_setup()
@@ -266,7 +285,29 @@ class MyServerCallbacks : public BLEServerCallbacks
   }
 };
 
-class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
+class MySettingsCharacteristicCallbacks : public BLECharacteristicCallbacks
+{
+  void onWrite(BLECharacteristic *pCharacteristic)
+  {
+    uint8_t data = pCharacteristic->getValue()[0];
+    String id = pCharacteristic->getUUID().toString().c_str();
+    if(id == CHARACTERISTIC_UUID_Brightness){
+      if(data < 0){
+        brightness = 0;
+      }
+      else if(data > 255){
+        brightness = 255;
+      }
+      else{
+        brightness = data;
+      }
+      pCharacteristic_Brightness->setValue((uint8_t *)&brightness, 1);
+      pCharacteristic_Brightness->notify();
+    }
+  }
+};
+
+class MyPointsCharacteristicCallbacks : public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic *pCharacteristic)
   {
@@ -282,6 +323,8 @@ class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
       else{
         team1_points = data;
       }
+      pCharacteristic_Points_Team1->setValue((uint8_t *)&team1_points, 1);
+      pCharacteristic_Points_Team1->notify();
     }
     else if(id == CHARACTERISTIC_UUID_Points_Team2){
       if(data < 0){
@@ -293,6 +336,8 @@ class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
       else{
         team2_points = data;
       }
+      pCharacteristic_Points_Team2->setValue((uint8_t *)&team2_points, 1);
+      pCharacteristic_Points_Team2->notify();
     }
     else if(id == CHARACTERISTIC_UUID_SummedPoints_Team1){
       if(data < 0){
@@ -304,6 +349,8 @@ class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
       else{
         team1_summedPoints = data;
       }
+      pCharacteristic_SummedPoints_Team1->setValue((uint8_t *)&team1_summedPoints, 1);
+      pCharacteristic_SummedPoints_Team1->notify();
     }
     else if(id == CHARACTERISTIC_UUID_SummedPoints_Team2){
       if(data < 0){
@@ -315,6 +362,8 @@ class MyPointCharacteristicCallbacks : public BLECharacteristicCallbacks
       else{
         team2_summedPoints = data;
       }
+      pCharacteristic_SummedPoints_Team2->setValue((uint8_t *)&team2_summedPoints, 1);
+      pCharacteristic_SummedPoints_Team2->notify();
     }
     // Serial.println("*********");
     // Serial.print("from UUID: ");
@@ -338,6 +387,7 @@ void ble_setup()
 
   // Create the BLE Service
   BLEService *pServiceInfos = pServer->createService(SERVICE_UUID_Infos);
+  BLEService *pServiceSettings = pServer->createService(SERVICE_UUID_Settings);
   BLEService *pServiceGame = pServer->createService(SERVICE_UUID_Game);
 
   // Create a BLE Characteristic
@@ -350,6 +400,13 @@ void ble_setup()
   pCharacteristic_Developer = pServiceInfos->createCharacteristic(
       CHARACTERISTIC_UUID_Developer,
       BLECharacteristic::PROPERTY_READ);
+
+  pCharacteristic_Brightness = pServiceSettings->createCharacteristic(
+      CHARACTERISTIC_UUID_Brightness,
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_WRITE |
+          BLECharacteristic::PROPERTY_NOTIFY |
+          BLECharacteristic::PROPERTY_INDICATE);
 
   pCharacteristic_Points_Team1 = pServiceGame->createCharacteristic(
       CHARACTERISTIC_UUID_Points_Team1,
@@ -386,10 +443,19 @@ void ble_setup()
   pCharacteristic_Model->addDescriptor(new BLE2902());
   pCharacteristic_Version->addDescriptor(new BLE2902());
   pCharacteristic_Developer->addDescriptor(new BLE2902());
-
+  
   pCharacteristic_Model->setValue((uint8_t *)&MODEL,sizeof(MODEL));
   pCharacteristic_Version->setValue((uint8_t *)&VERSION,sizeof(VERSION));
   pCharacteristic_Developer->setValue((uint8_t *)&DEVELOPER,sizeof(DEVELOPER));
+
+
+
+  pCharacteristic_Brightness->addDescriptor(new BLE2902());
+
+  pCharacteristic_Brightness->setCallbacks(new MySettingsCharacteristicCallbacks());
+
+  pCharacteristic_Brightness->setValue((uint8_t *)&brightness, 1);
+
 
 
   pCharacteristic_Points_Team1->addDescriptor(new BLE2902());
@@ -397,10 +463,10 @@ void ble_setup()
   pCharacteristic_SummedPoints_Team1->addDescriptor(new BLE2902());
   pCharacteristic_SummedPoints_Team2->addDescriptor(new BLE2902());
 
-  pCharacteristic_Points_Team1->setCallbacks(new MyPointCharacteristicCallbacks());
-  pCharacteristic_Points_Team2->setCallbacks(new MyPointCharacteristicCallbacks());
-  pCharacteristic_SummedPoints_Team1->setCallbacks(new MyPointCharacteristicCallbacks());
-  pCharacteristic_SummedPoints_Team2->setCallbacks(new MyPointCharacteristicCallbacks());
+  pCharacteristic_Points_Team1->setCallbacks(new MyPointsCharacteristicCallbacks());
+  pCharacteristic_Points_Team2->setCallbacks(new MyPointsCharacteristicCallbacks());
+  pCharacteristic_SummedPoints_Team1->setCallbacks(new MyPointsCharacteristicCallbacks());
+  pCharacteristic_SummedPoints_Team2->setCallbacks(new MyPointsCharacteristicCallbacks());
 
   pCharacteristic_Points_Team1->setValue((uint8_t *)&team1_points, 1);
   pCharacteristic_Points_Team2->setValue((uint8_t *)&team2_points, 1);
@@ -409,11 +475,13 @@ void ble_setup()
 
   // Start the service
   pServiceInfos->start();
+  pServiceSettings->start();
   pServiceGame->start();
 
   // Start advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID_Infos);
+  pAdvertising->addServiceUUID(SERVICE_UUID_Settings);
   pAdvertising->addServiceUUID(SERVICE_UUID_Game);
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0); // set value to 0x00 to not advertise this parameter
@@ -426,6 +494,7 @@ void setup()
 {
   ble_setup();
   dmd_setup();
+  brightness_setup();
   btn_setup();
 }
 
@@ -561,4 +630,5 @@ void loop()
   ble_loop();
   // pointsSerialOut_loop();
   drawCount(team1_points, team2_points, team1_summedPoints, team2_summedPoints);
+  // ledcWrite(pwmChannel, brightness);
 }
