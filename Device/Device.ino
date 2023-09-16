@@ -8,7 +8,7 @@
 
 // #define SERIAL_BAUD 115200
 #define DEVICE_NAME "MATDIS BLE"
-#define VERSION "v1.1.0"
+#define VERSION "v2.0.0"
 #define MODEL "MATDIS v1"
 #define DEVELOPER "04M04"
 
@@ -68,15 +68,19 @@ hw_timer_t * timer = NULL;
 
 //buttons
 //--------------------------------------------------------------------------------------
-int BTN_RESET_TEAM1_POINTS_PIN = 34;
-int BTN_ADD_TEAM1_POINTS_PIN = 35;
+//1
+int BTN_RESET_TEAM1_POINTS_PIN = 5;
+int BTN_ADD_TEAM1_POINTS_PIN = 15;
 int BTN_SUB_TEAM1_POINTS_PIN = 32;
+//2
 int BTN_RESET_TEAM2_POINTS_PIN = 33;
 int BTN_ADD_TEAM2_POINTS_PIN = 25;
 int BTN_SUB_TEAM2_POINTS_PIN = 26;
+//3
 int BTN_RESET_TEAM1_PLAYS_PIN = 27;
 int BTN_ADD_TEAM1_PLAYS_PIN = 14;
 int BTN_SUB_TEAM1_PLAYS_PIN = 12;
+//4
 int BTN_RESET_TEAM2_PLAYS_PIN = 17;
 int BTN_ADD_TEAM2_PLAYS_PIN = 16;
 int BTN_SUB_TEAM2_PLAYS_PIN = 4;
